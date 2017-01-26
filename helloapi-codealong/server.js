@@ -63,7 +63,7 @@ router.route('/vehicles')
   });
 
 //get Vehicles by ID
-router.route('vehicle/:vehicle_id')
+router.route('/vehicle/:vehicle_id')
   .get(function(req, res) {
     Vehicle.findById(req.params.vehicle_id, function(err, vehicle) {
       if (err) {
