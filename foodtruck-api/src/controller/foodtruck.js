@@ -122,8 +122,6 @@ export default ({ config, db }) => {
 
   //v1/foodtruck/avgcost/:avgcost
 
-  //User.find({age: {$gte: 21, $lte: 65}}, callback);
-
   api.get('/avgcost/:avgcost', (req, res) => {
     let upperLimit = parseInt(req.params.avgcost) + 5;
     let lowerLimit = req.params.avgcost - 5;
