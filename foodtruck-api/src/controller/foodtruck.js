@@ -110,5 +110,31 @@ export default ({ config, db }) => {
     });
   });
 
+  //v1/foodtruck/foodtype/:type
+  api.get('/foodtype/:type', (req, res) => {
+    Foodtruck.find({foodtype: req.params.type}, (err, foodtrucks) => {
+      if (err) {
+        res.send(err);
+      }
+      res.json(foodtrucks);
+    });
+  });
+
+  //v1/foodtruck/avgcost/:avgcost
+
+  //User.find({age: {$gte: 21, $lte: 65}}, callback);
+
+  api.get('/avgcost/:avgcost', (req, res) => {
+    let upperLimit = parseInt(req.params.avgcost) + 5;
+    let lowerLimit = req.params.avgcost - 5;
+    console.log("upperLimit is ", upperLimit, "lowerLimit is ", lowerLimit);
+    Foodtruck.where('avgcost').gte(lowerLimit).lte(upperLimit).exec((err, foodtrucks) => {
+      if (err) {
+        res.send(err);
+      }
+      res.send(foodtrucks);
+    });
+  });
+
   return api;
 }
