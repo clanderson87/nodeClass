@@ -3,7 +3,7 @@ import config from '../config';
 import middleware from '../middleware';
 import initalizeDb from '../db';
 import foodtruck from '../controller/foodtruck';
-import acount from '../controller/account';
+import account from '../controller/account';
 
 let router = express();
 
