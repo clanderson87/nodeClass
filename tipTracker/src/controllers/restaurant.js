@@ -52,9 +52,15 @@ export default ({ config, db }) => {
      });
    });
 
-   
-
-
+   // 'v1/restaurant/cost/:cost'
+   api.get('/cost/:cost', (req, res) => {
+     let low = req.params.cost * .67;
+     let high = req.params.cost * 1.33;
+     Restaurant.where('cost').gte(low).lte(high).exec((err, restaurants) => {
+       errSend(res, err);
+       res.json(restaurants);
+     });
+   });
    return api;
 }
 
