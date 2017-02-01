@@ -11,12 +11,15 @@ let app = express();
 app.server = http.createServer(app);
 
 //middleware
+app.use(bodyParser.json({
+  limit: config.bodyLimit
+}))
 
 //passport auth
 
 //api routes v1
 app.use('/v1', routes); //master route for v1 of api
 app.server.listen(config.port);
-console.log(`Started on port${app.server.address().port}`);
+console.log(`Started on port ${app.server.address().port}`);
 
 export default app;
