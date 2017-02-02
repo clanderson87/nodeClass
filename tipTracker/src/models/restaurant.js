@@ -12,7 +12,10 @@ let restaurantSchema = new Schema({
   },
   geometry: {
     type: { type: String, default: "Point" },
-    coordinates: [Number]
+    coordinates: {
+      "lat": Number,
+      "lon": Number
+    }
   },
   cost: {
     type: Number,

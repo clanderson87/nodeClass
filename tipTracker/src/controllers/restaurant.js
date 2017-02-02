@@ -3,6 +3,8 @@ import { Router } from 'express';
 import bodyParser from 'body-parser';
 import Restaurant from '../models/restaurant';
 
+import { authenticate } from '../middleware/authMiddleware';
+
 
 export default ({ config, db }) => {
   let api = Router();
@@ -10,16 +12,17 @@ export default ({ config, db }) => {
   //for errors
   const errSend = (res, err = null) => {
     if(err) {
-      res.send(err);
+      res.status(500).send(err);
     }
   };
 
    // '/v1/restaurant/add'
-   api.post('/add', (req, res) => {
+   api.post('/add', authenticate, (req, res) => {
      let newRest = new Restaurant();
      newRest.name = req.body.name;
      newRest.foodtype = req.body.foodtype;
-     newRest.geometry.coordinates = req.body.geometry.coordinates;
+     newRest.geometry.coordinates.lat = req.body.geometry.coordinates.lat;
+     newRest.geometry.coordinates.lon = req.body.geometry.coordinates.lon;
      newRest.cost = req.body.cost;
 
      newRest.save(err => {
@@ -61,6 +64,19 @@ export default ({ config, db }) => {
        res.json(restaurants);
      });
    });
+
+   // 'v1/restaurant/geo/:radius
+   api.get('/geo/:radius', (req, res) => {
+     if (!req.params.radius){
+       req.params.radius = 10;
+     }
+     let area = { center: [req.body.geometry.coordinates.lat, req.body.geometry.coordinates.lon], radius: req.params.radius, unique: true, spherical: true };
+     Restaurant.where('geometry.coodrinates').within().circle(area).exec((err, restaurants) => {
+       errSend(res, err);
+       res.json(restaurants);
+     });
+   });
+
    return api;
 }
 
