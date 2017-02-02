@@ -31,6 +31,11 @@ export default ({ config, deb }) => {
       scope: []
   }), generateAccessToken, respond);
 
+  api.get('/login/facebook', passport.authenticate(
+    'facebook', {
+      failedRedirect: '/login'
+  }), generateAccessToken, respond);
+
   api.get('./logout', authenticate, (req, res) => {
     res.logout();
     res.status(200).send("Successfully logged out!")
