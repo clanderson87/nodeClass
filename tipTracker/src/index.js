@@ -43,11 +43,31 @@ passport.deserializeUser(Account.deserializeUser());
 passport.use(new FacebookStrategy({
   clientID: PassportSecrets.Facebook.clientId,
   clientSecret: PassportSecrets.Facebook.clientSecret,
-  callbackURL: "http://localhost:3005/v1/restaurant"
+  callbackURL: "http://localhost:3005/v1/account/login/facebook/callback",
+  profileFields: ['id', 'displayName', 'email'],
 },
-  (accessToken, refreshToken, profile, callback) => {
-    Account.findOrCreate({ facebookId: profile.id }, (err, user) => {
-      return callback(err, user);
+  (accessToken, refreshToken, profile, cb) => {
+    Account.findOne({'facebook.id': profile.id}, (err, user) => {
+      if(err){
+        return cb(err);
+      }
+      if (user) {
+        return cb(user);
+      } else {
+        let newUser = new Account();
+        newUser.email = "";
+        newUser.facebook.id = profile.id;
+        newUser.facebook.token = accessToken;
+        newUser.facebook.name = profile.displayName;
+
+        newUser.save(function(err){
+          if(err){
+            throw(err);
+          }
+          return cb(null, newUser)
+        })
+      }
+      return cb(err, user);
     });
   }
 ));

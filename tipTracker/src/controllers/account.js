@@ -31,10 +31,14 @@ export default ({ config, deb }) => {
       scope: []
   }), generateAccessToken, respond);
 
-  api.get('/login/facebook', passport.authenticate(
+  api.get('/login/facebook', passport.authenticate('facebook'));
+
+  api.get('/login/facebook/callback', passport.authenticate(
     'facebook', {
-      failedRedirect: '/login'
-  }), generateAccessToken, respond);
+      successRedirect: '/nothere', 
+      failureRedirect: '/'
+    }
+  ));
 
   api.get('./logout', authenticate, (req, res) => {
     res.logout();
