@@ -10,7 +10,7 @@ import PassportSecrets from './secrets';
 
 //passport strategies
 const LocalStrategy = require('passport-local').Strategy;
-const GoogleStrategy = require('passport-google').Strategy;
+const GoogleStrategy = require('passport-google-oauth').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 
 
@@ -31,6 +31,7 @@ app.use(bodyParser.json({
 app.use(passport.initialize());
 let Account = require('./models/account');
 
+//Local
 passport.use(new LocalStrategy({ 
   usernameField: 'email',
   passwordField: 'password'
@@ -40,6 +41,8 @@ passport.use(new LocalStrategy({
 passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());
 
+
+//Facebook
 passport.use(new FacebookStrategy({
   clientID: PassportSecrets.Facebook.clientId,
   clientSecret: PassportSecrets.Facebook.clientSecret,
@@ -81,6 +84,46 @@ passport.use(new FacebookStrategy({
     });
   }
 ));
+
+//Google
+passport.use( new GoogleStrategy({
+  clientID: PassportSecrets.Google.clientId,
+  clientSecret: PassportSecrets.Google.clientSecret,
+  callbackURL: "http://localhost:3005/v1/account/login/google/callback"
+},
+  (token, refreshToken, profile, done) => {
+        User.findOne({ 'google.id': profile.id }, (err, user) => {
+          if (err)
+            return done(err);
+          if (user) {
+            passport.serializeUser((user, done) => {
+              done(null, user);
+            });
+            passport.deserializeUser((obj, done) => {
+              done(null, obj);
+            }); 
+          } else {
+            let newUser = new Account();
+            newUser.google.id = profile.id;
+            newUser.google.token = token;
+            newUser.google.name = profile.displayName;
+            newUser.google.email = profile.emails[0].value;
+            newUser.save(function(err) {
+              if (err) {
+                throw err;
+              };
+              passport.serializeUser((user, done) => {
+                done(null, user);
+              });
+              passport.deserializeUser((obj, done) => {
+                done(null, obj);
+              });
+            });
+          }
+        });
+      }
+    )
+);
 
 //api routes v1
 app.use('/v1', routes); //master route for v1 of api

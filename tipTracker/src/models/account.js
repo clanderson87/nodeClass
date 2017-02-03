@@ -11,7 +11,12 @@ let Account = new Schema({
     id: Number,
     name: String,
     token: String
-  }
+  },
+  google: {
+    id: String,
+    name: String,
+    token: String
+  }, 
   //tips : [{type: Schema.Types.ObjectId, ref: 'Tips'}],
   //goal: Number
 });

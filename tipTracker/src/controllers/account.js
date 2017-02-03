@@ -43,6 +43,13 @@ export default ({ config, deb }) => {
     res.status(200).send("Successfully logged out!")
   });
 
+  api.get('/login/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+  api.get('/login/google/callback', passport.authenticate('google', {  
+    successRedirect: '/v1/restaurant',
+    failureRedirect: '/',
+  }));
+
   api.get('/me', authenticate, (req, res) => {
     res.status(200).json(req.user);
   });
