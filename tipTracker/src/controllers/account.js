@@ -33,14 +33,12 @@ export default ({ config, deb }) => {
 
   api.get('/login/facebook', passport.authenticate('facebook'));
 
-  api.get('/login/facebook/callback', passport.authenticate(
-    'facebook', {
-      successRedirect: '/nothere', 
-      failureRedirect: '/'
-    }
-  ));
+  api.get('/login/facebook/callback', passport.authenticate('facebook', {
+      successRedirect: '/v1/restaurant',
+      failureRedirect: '/nope'
+    }), generateAccessToken, respond);
 
-  api.get('./logout', authenticate, (req, res) => {
+  api.get('/logout', authenticate, (req, res) => {
     res.logout();
     res.status(200).send("Successfully logged out!")
   });

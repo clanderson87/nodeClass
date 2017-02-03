@@ -46,13 +46,18 @@ passport.use(new FacebookStrategy({
   callbackURL: "http://localhost:3005/v1/account/login/facebook/callback",
   profileFields: ['id', 'displayName', 'email'],
 },
-  (accessToken, refreshToken, profile, cb) => {
+  (accessToken, refreshToken, profile, done) => {
     Account.findOne({'facebook.id': profile.id}, (err, user) => {
       if(err){
-        return cb(err);
+        return done(err);
       }
       if (user) {
-        return cb(user);
+        passport.serializeUser((user, done) => {
+          done(null, user);
+        });
+        passport.deserializeUser((obj, done) => {
+          done(null, obj);
+        }); 
       } else {
         let newUser = new Account();
         newUser.email = "";
@@ -64,15 +69,18 @@ passport.use(new FacebookStrategy({
           if(err){
             throw(err);
           }
-          return cb(null, newUser)
+          return done(null, newUser)
         })
       }
-      return cb(err, user);
+      passport.serializeUser((user, done) => {
+        done(null, user);
+      });
+      passport.deserializeUser((obj, done) => {
+        done(null, obj);
+      });
     });
   }
 ));
-passport.serializeUser(Account.serializeUser());
-passport.deserializeUser(Account.deserializeUser());
 
 //api routes v1
 app.use('/v1', routes); //master route for v1 of api
