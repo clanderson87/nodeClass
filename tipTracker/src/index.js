@@ -10,7 +10,7 @@ import PassportSecrets from './secrets';
 
 //passport strategies
 const LocalStrategy = require('passport-local').Strategy;
-const GoogleStrategy = require('passport-google-oauth').Strategy;
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 
 
@@ -86,13 +86,14 @@ passport.use(new FacebookStrategy({
 ));
 
 //Google
-passport.use( new GoogleStrategy({
+passport.use(new GoogleStrategy({
   clientID: PassportSecrets.Google.clientId,
   clientSecret: PassportSecrets.Google.clientSecret,
   callbackURL: "http://localhost:3005/v1/account/login/google/callback"
 },
   (token, refreshToken, profile, done) => {
-        User.findOne({ 'google.id': profile.id }, (err, user) => {
+    console.log('done is ', done);
+        Account.findOne({ 'google.id': profile.id }, (err, user) => {
           if (err)
             return done(err);
           if (user) {
@@ -107,7 +108,7 @@ passport.use( new GoogleStrategy({
             newUser.google.id = profile.id;
             newUser.google.token = token;
             newUser.google.name = profile.displayName;
-            newUser.google.email = profile.emails[0].value;
+            newUser.email = profile.emails[0].value;
             newUser.save(function(err) {
               if (err) {
                 throw err;

@@ -6,6 +6,7 @@ import passport from 'passport';
 import config from '../config';
 
 import { generateAccessToken, respond, authenticate } from '../middleware/authMiddleware';
+import googleWorkAround from '../middleware/googleWorkAround';
 
 export default ({ config, deb }) => {
   let api = Router();
@@ -43,12 +44,17 @@ export default ({ config, deb }) => {
     res.status(200).send("Successfully logged out!")
   });
 
-  api.get('/login/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+  // api.get('/login/google', googleWorkAround);
+  api.get('/login/google', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login','https://www.googleapis.com/auth/plus.profile.emails.read'] }));
 
-  api.get('/login/google/callback', passport.authenticate('google', {  
+  //trying the middleware solution
+  api.get('/login/google/callback', passport.authenticate('google', {
     successRedirect: '/v1/restaurant',
-    failureRedirect: '/',
-  }));
+    failureRedirect: '/nope'
+  }), (req, res) => {
+    console.log('req is', req);
+    res.redirect('http://localhost:3005/v1/restaurant')
+  });
 
   api.get('/me', authenticate, (req, res) => {
     res.status(200).json(req.user);
