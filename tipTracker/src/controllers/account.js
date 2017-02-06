@@ -6,7 +6,6 @@ import passport from 'passport';
 import config from '../config';
 
 import { generateAccessToken, respond, authenticate } from '../middleware/authMiddleware';
-import googleWorkAround from '../middleware/googleWorkAround';
 
 export default ({ config, deb }) => {
   let api = Router();
@@ -37,7 +36,7 @@ export default ({ config, deb }) => {
   api.get('/login/facebook/callback', passport.authenticate('facebook', {
       successRedirect: '/v1/restaurant',
       failureRedirect: '/nope'
-    }), generateAccessToken, respond);
+    }));
 
   api.get('/logout', authenticate, (req, res) => {
     res.logout();
@@ -45,7 +44,7 @@ export default ({ config, deb }) => {
   });
 
   // api.get('/login/google', googleWorkAround);
-  api.get('/login/google', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login','https://www.googleapis.com/auth/plus.profile.emails.read'] }));
+  api.get('/login/google/oauth', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login','https://www.googleapis.com/auth/plus.profile.emails.read'] }));
 
   //trying the middleware solution
   api.get('/login/google/callback', passport.authenticate('google', {
