@@ -12,6 +12,7 @@ import PassportSecrets from './secrets';
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
+const BearerStrategy = require('passport-http-bearer').Strategy;
 
 
 
@@ -52,17 +53,18 @@ passport.use(new FacebookStrategy({
         return done(err);
       }
       if (user) {
-        passport.serializeUser((user, done) => {
-          done(null, user);
-        });
-        passport.deserializeUser((obj, done) => {
-          done(null, obj);
-        }); 
+        // passport.serializeUser((user, done) => {
+        //   done(null, user);
+        // });
+        // passport.deserializeUser((obj, done) => {
+        //   done(null, obj);
+        // }); 
+        return done(null, user);
       } else {
         let newUser = new Account();
-        newUser.email = "";
+        newUser.email = profile.emails[0].value;
         newUser.facebook.id = profile.id;
-        newUser.facebook.token = accessToken;
+        newUser.access_token = accessToken;
         newUser.facebook.name = profile.displayName;
 
         newUser.save(function(err){
@@ -72,15 +74,35 @@ passport.use(new FacebookStrategy({
           return done(null, newUser)
         })
       }
-      passport.serializeUser((user, done) => {
-        done(null, user);
-      });
-      passport.deserializeUser((obj, done) => {
-        done(null, obj);
-      });
+      // passport.serializeUser((user, done) => {
+      //   done(null, user);
+      // });
+      // passport.deserializeUser((obj, done) => {
+      //   done(null, obj);
+      //});
+      done(null, user);
     });
   }
 ));
+
+passport.use(
+    new BearerStrategy(
+        function(token, done) {
+            Account.findOne({ access_token: token },
+                function(err, user) {
+                    if(err) {
+                        return done(err)
+                    }
+                    if(!user) {
+                        return done(null, false)
+                    }
+
+                    return done(null, user, { scope: 'all' })
+                }
+            );
+        }
+    )
+);
 
 //api routes v1
 app.use('/v1', routes); //master route for v1 of api

@@ -11,7 +11,8 @@ let Account = new Schema({
     id: Number,
     name: String,
     token: String
-  }
+  },
+  access_token: String
   //tips : [{type: Schema.Types.ObjectId, ref: 'Tips'}],
   //goal: Number
 });

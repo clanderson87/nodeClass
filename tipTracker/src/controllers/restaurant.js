@@ -19,6 +19,7 @@ export default ({ config, db }) => {
    // '/v1/restaurant/add'
    api.post('/add', authenticate, (req, res) => {
      let newRest = new Restaurant();
+     console.log("req is ", req.body);
      newRest.name = req.body.name;
      newRest.foodtype = req.body.foodtype;
      newRest.geometry.coordinates.lat = req.body.geometry.coordinates.lat;
